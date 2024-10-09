@@ -58,7 +58,7 @@ const App = () => {
       }
     }
 
-    
+    console.log('got here')
 
     personService
       .create(newPerson)
@@ -67,6 +67,12 @@ const App = () => {
         setNewName('')
         setNotification(`Added ${newPerson.name} to the phonebook`)
 
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      })
+      .catch(error => {
+        console.log("Error: ", error)
         setTimeout(() => {
           setNotification(null)
         }, 5000)
