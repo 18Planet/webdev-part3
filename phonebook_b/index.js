@@ -9,8 +9,6 @@ app.use(express.static('dist'))
 
 const Person = require('./models/person')
 
-persons = []
-
 const token = morgan.token('custom', (req, res) => {
     return JSON.stringify(req.body)
 })
@@ -22,7 +20,9 @@ app.use(express.json())
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
+    console.log(persons)
   })
+  
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -37,7 +37,11 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.get('/info', (request, response) => {
     const date = new Date()
-    response.send('<div>Phonebook has info for '+ persons.length+ ' people</div><br/> ' + date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
+    Person.find({}).then(persons => {
+      console.log(persons)
+      response.send('<div>Phonebook has info for '+ persons.length + ' people</div><br/> ' + date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
+    })
+    
 })
 
 
@@ -65,7 +69,11 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number,
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, {new: true})
+  Person.findByIdAndUpdate(
+    request.params.id, 
+    person, 
+    {new: true, runValidators: true}
+    )
     .then(updatedPerson => {
       response.json(updatedPerson)
     })

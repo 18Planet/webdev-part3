@@ -14,6 +14,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [notification, setNotification] = useState(null)
+  const [error, setError] = useState(false) // State to determine whether to render notifications as error or not
 
   useEffect(() => {
     personService
@@ -31,6 +32,8 @@ const App = () => {
       number: newNumber,
     }
 
+    console.log('got here')
+
     for (const person of persons) {
       if (person.name === newName) {
         if (confirm(`${person.name} is already added to phonebook, replace old number with new one?`)) {
@@ -38,6 +41,7 @@ const App = () => {
             .update(persons.filter(person => person.name === newName)[0].id, newPerson)
             .then(returnedPerson => {
               setNotification(`Updated ${newName}'s number`)
+              setError(false)
               setTimeout(() => {
                 setNotification(null)
               }, 5000)
@@ -45,11 +49,12 @@ const App = () => {
               setNewName('')
             })
             .catch(error => {
-              setNotification(`Error occurred: person was already deleted`)
+              setNotification(`Error occurred: ${error.response.data.error}`)
+              setError(true)
               setTimeout(() => {
               setNotification(null)
               }, 5000)
-              setPersons(persons.filter(person => person.name !== newName))
+              // setPersons(persons.filter(person => person.name !== newName))
             })
           return
         } else {
@@ -58,13 +63,12 @@ const App = () => {
       }
     }
 
-    console.log('got here')
-
     personService
       .create(newPerson)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
+        setError(false)
         setNotification(`Added ${newPerson.name} to the phonebook`)
 
         setTimeout(() => {
@@ -73,6 +77,8 @@ const App = () => {
       })
       .catch(error => {
         console.log("Error: ", error)
+        setNotification(`Person validation failed: ${error.response.data.error}`)
+        setError(true)
         setTimeout(() => {
           setNotification(null)
         }, 5000)
@@ -89,6 +95,7 @@ const App = () => {
               })
         })
       .catch(error => {
+        setError(true)
         setNotification(`Error occurred: person was already deleted`)
         setTimeout(() => {
           setNotification(null)
@@ -114,7 +121,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message = {notification} />
+      <Notification message = {notification} error = {error}/>
       <FilterSearch filter = {filter} updateFilter = {updateFilter}/>
       
       <h2>Add New</h2>
