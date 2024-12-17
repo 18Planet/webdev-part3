@@ -9,6 +9,10 @@ app.use(express.static('dist'))
 
 const Person = require('./models/person')
 
+const token = morgan.token('custom', (req, res) => {
+  return JSON.stringify(req.body)
+})
+
 app.use(morgan(':method :url :status :remote-user :response-time ms :custom'))
 
 app.use(express.json())
@@ -78,7 +82,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(() => {
+    .then(result => {
       response.status(204).end()
     })
     .catch(error => next(error))
