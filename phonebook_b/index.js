@@ -9,9 +9,11 @@ app.use(express.static('dist'))
 
 const Person = require('./models/person')
 
+/* eslint-disable no-unused-vars */
 const token = morgan.token('custom', (req, res) => {
   return JSON.stringify(req.body)
 })
+/* eslint-enable no-unused-vars */
 
 app.use(morgan(':method :url :status :remote-user :response-time ms :custom'))
 
